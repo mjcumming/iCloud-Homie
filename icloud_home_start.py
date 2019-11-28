@@ -11,7 +11,7 @@ with open("icloud_homie.yml", 'r') as ymlfile:
 
 accounts = cfg['icloud']
 for name,account_info in accounts.items():
-    ic = ICloud_Account(account_info ['username'],account_info ['password'],mqtt_settings=cfg['mqtt'])
+    ic = ICloud_Account(name,account_info ['username'],account_info ['password'],mqtt_settings=cfg['mqtt'])
 
 update_interval = int(cfg ['update_interval'])
 
