@@ -118,6 +118,9 @@ class Device_iCloud_Device(Device_Base):
         self.findmyphone = Property_Switch (node, id='findphone', name="Find My Phone",set_value=self.set_find_my_phone)
         node.add_property (self.findmyphone)
 
+        self.refresh = Property_Switch (node, id='refresh', name="Refresh",set_value=self.set_refresh)
+        node.add_property (self.refresh)
+
         self.start()
 
         self.update()
@@ -155,8 +158,13 @@ class Device_iCloud_Device(Device_Base):
             self.location_type.value = "Unknown"
 
     def set_find_my_phone(self,value):
-        print ('find',value)
         self.icloud_device.play_sound()
         self.findmyphone.value ='ON'
         self.findmyphone.value ='OFF'
+
+    def refresh(self,value):
+        self.update()
+        self.findmyphone.value ='ON'
+        self.findmyphone.value ='OFF'
+
 
