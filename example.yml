@@ -1,0 +1,10 @@
+mqtt:
+  MQTT_BROKER: 
+  MQTT_PORT: 1883
+
+icloud:
+  account_name: 
+    username: 
+    password: 
+
+update_interval:

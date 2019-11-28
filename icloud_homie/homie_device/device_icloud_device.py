@@ -9,7 +9,7 @@ from homie.device_base import Device_Base
 from homie.node.node_base import Node_Base
 
 from homie.node.property.property_float import Property_Float
-from homie.node.property.property_temperature import Property_Temperature
+from homie.node.property.property_switch import Property_Switch
 from homie.node.property.property_battery import Property_Battery
 from homie.node.property.property_enum import Property_Enum
 from homie.node.property.property_string import Property_String
@@ -109,8 +109,14 @@ class Device_iCloud_Device(Device_Base):
         self.location_accuracy = Property_Float (node, id='accuracy', name="Location Accuracy", settable=False)
         node.add_property (self.location_accuracy)
 
+        self.location_type = Property_String (node, id='locationtype', name="Location Type")
+        node.add_property (self.location_type)
+
         self.location_lastupdate = Property_String (node, id='lastupdate', name="Location Last Update")
         node.add_property (self.location_lastupdate)
+
+        self.findmyphone = Property_Switch (node, id='findphone', name="Find My Phone",set_value=self.set_find_my_phone)
+        node.add_property (self.findmyphone)
 
         self.start()
 
@@ -119,6 +125,7 @@ class Device_iCloud_Device(Device_Base):
     def update(self):
         status = self.icloud_device.status (STATUSREQUEST)
         location = self.icloud_device.location ()
+        #print (location)
 
         try:
             self.device_status.value = DEVICESTATUSCODES[status["deviceStatus"]]
@@ -129,11 +136,13 @@ class Device_iCloud_Device(Device_Base):
                 self.latitude.value = float(location["latitude"])
                 self.longitude.value = float(location["longitude"])
                 self.location_accuracy.value = float(location["horizontalAccuracy"])
+                self.location_type.value = location ["positionType"]
             else:
                 self.location_lastupdate.value = "Unknown"
                 self.latitude.value = 0
                 self.longitude.value = 0
                 self.location_accuracy.value = 0
+                self.location_type.value = "Unknown"
 
         except:
             traceback.print_exc()
@@ -143,3 +152,11 @@ class Device_iCloud_Device(Device_Base):
             self.latitude.value = 0
             self.longitude.value = 0
             self.location_accuracy.value = 0
+            self.location_type.value = "Unknown"
+
+    def set_find_my_phone(self,value):
+        print ('find',value)
+        self.icloud_device.play_sound()
+        self.findmyphone.value ='ON'
+        self.findmyphone.value ='OFF'
+

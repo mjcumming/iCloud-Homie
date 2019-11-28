@@ -90,24 +90,29 @@ class ICloud_Account (object):
 
     def add_devices (self):
         for device_id,device_info in self.api.devices.items():
-            print (device_id,device_info)
-            device = self.api.devices [device_id]
-            print(device)
-            status = device.status (["name","rawDeviceModel","deviceStatus"])
+            try:
+                print (device_id,device_info)
+                device = self.api.devices [device_id]
+                status = device.status (["name","rawDeviceModel","deviceStatus"])
+                print(device, status["deviceStatus"])
 
-            name = "".join(c for c in (status["name"]+'-'+status["rawDeviceModel"]).lower() if c in PERMITTED_CHARS)
-            logger.info ('New icloud device {}'.format(name))
+                name = "".join(c for c in (status["name"]+'-'+status["rawDeviceModel"]).lower() if c in PERMITTED_CHARS)
+                logger.info ('New icloud device {}'.format(name))
 
-            if status["deviceStatus"] in ["200","201"]:
-                logger.info ('Adding icloud device {}'.format(name))
+                if status["deviceStatus"] in ["200","201"]:
+                    logger.info ('Adding icloud device {}'.format(name))
+                    print  ('adding')
 
-                ic = Device_iCloud_Device (device_id=name,name=name,icloud_device=device,mqtt_settings=self.mqtt_settings)
+                    ic = Device_iCloud_Device (device_id=name,name=name,icloud_device=device,mqtt_settings=self.mqtt_settings)
 
-                self.homie_devices.append(ic)
-                self.device_name_list.append(name)
-                self.device_account.update()
-            else:
-                logger.info ('Skipping icloud device {}'.format(name))
+                    self.homie_devices.append(ic)
+                    self.device_name_list.append(name)
+                    self.device_account.update()
+                else:
+                    logger.info ('Skipping icloud device {}'.format(name))
+            except Exception as e:
+                logger.warning ('Error adding device. Error {}'.format(e))
+
     
     def send_verification_code (self,code):
         try:

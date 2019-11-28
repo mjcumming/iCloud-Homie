@@ -12,8 +12,8 @@ setuptools.setup(
     author_email='mike@4831.com',
     long_description=long_description,
     long_description_content_type="text/markdown",      
-    url='https://github.com/mjcumming/Somecomfort-Homie',
-    keywords = ['HOMIE','MQTT','iCloud'],  
+    url='https://github.com/mjcumming/iCloud-Homie',
+    keywords = ['HOMIE','MQTT','iCloud','iPhone'],  
     packages=setuptools.find_packages(exclude=("test.py",)),
     classifiers=[
         "Programming Language :: Python :: 3",

@@ -123,3 +123,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+icloud_test.py
+icloud_homie.yaml

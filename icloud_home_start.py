@@ -4,24 +4,21 @@ import time
 
 import yaml
 
-mqtt_settings = {
-    'MQTT_BROKER' : 'OpenHab',
-    'MQTT_PORT' : 1883,
-}
-
-update_interval = 15 #minutes
-
 from icloud_homie.icloud_account import ICloud_Account 
 
 with open("icloud_homie.yml", 'r') as ymlfile:
     cfg = yaml.full_load(ymlfile)
 
-ic = ICloud_Account(username,password,mqtt_settings=mqtt_settings)
+accounts = cfg['icloud']
+for name,account_info in accounts.items():
+    ic = ICloud_Account(account_info ['username'],account_info ['password'],mqtt_settings=cfg['mqtt'])
+
+update_interval = int(cfg ['update_interval'])
 
 
 try:
     while True:
-        time.sleep(60)
+        time.sleep(update_interval*60)
 
         ic.update_devices()
 
