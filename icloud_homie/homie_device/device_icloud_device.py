@@ -162,9 +162,9 @@ class Device_iCloud_Device(Device_Base):
         self.findmyphone.value ='ON'
         self.findmyphone.value ='OFF'
 
-    def refresh(self,value):
+    def set_refresh(self,value):
         self.update()
-        self.findmyphone.value ='ON'
-        self.findmyphone.value ='OFF'
+        self.refresh.value ='ON'
+        self.refresh.value ='OFF'
 
 

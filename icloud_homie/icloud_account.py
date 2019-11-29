@@ -36,7 +36,7 @@ class ICloud_Account (object):
         self.device_account.connection_status.value ="Not Connected"
 
         self.device_name_list = []
-        self.homie_devices = []
+        self.homie_devices = {}
 
         self.connect_icloud()
 
@@ -105,12 +105,14 @@ class ICloud_Account (object):
 
                     ic = Device_iCloud_Device (device_id=name,name=name,icloud_device=device,mqtt_settings=self.mqtt_settings)
 
-                    self.homie_devices.append(ic)
+                    self.homie_devices [device_id] = ic
                     self.device_name_list.append(name)
                     self.device_account.update()
                 else:
                     logger.info ('Skipping icloud device {}'.format(name))
+
             except Exception as e:
+                traceback.print_exc()
                 logger.warning ('Error adding device. Error {}'.format(e))
 
     
@@ -125,5 +127,9 @@ class ICloud_Account (object):
             logger.error("Failed to verify verification code: %s", error)
 
     def update_devices(self):
-        for device in self.homie_devices:
-            device.update()
+        for device_id, device in self.homie_devices.items():
+            try:
+                device.update()
+            except Exception as e:
+                traceback.print_exc()
+                logger.warning ('Error adding device. Error {}'.format(e))
