@@ -20,19 +20,20 @@ PERMITTED_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz-"
 
 class ICloud_Account (object):
 
-    def __init__(self, name, username, password, homie_settings=None, mqtt_settings=None):
+    def __init__(self, name, username, password, update_interval, homie_settings=None, mqtt_settings=None):
 
         self.homie_settings = homie_settings
         self.mqtt_settings = mqtt_settings
         self.username = username
         self.password = password
+        self.update_interval = update_interval
 
         self.api = None
 
         self._trusted_device = None
         self._trusted_device_name = "None"
 
-        self.device_account = Device_iCloud_Account(device_id=name, name= name + ' iCloud Account', icloud_account=self, homie_settings=homie_settings, mqtt_settings=mqtt_settings)
+        self.device_account = Device_iCloud_Account(device_id=name.lower() + 'icloudaccount', name= name + ' iCloud Account', icloud_account=self, homie_settings=homie_settings, mqtt_settings=mqtt_settings)
         self.device_account.connection_status.value ="Not Connected"
 
         self.device_name_list = []
@@ -103,7 +104,7 @@ class ICloud_Account (object):
                     logger.info ('Adding icloud device {}'.format(name))
                     print  ('adding')
 
-                    ic = Device_iCloud_Device (device_id=name,name=name,icloud_device=device,mqtt_settings=self.mqtt_settings)
+                    ic = Device_iCloud_Device (device_id=name,name=name,update_interval=self.update_interval,icloud_device=device,mqtt_settings=self.mqtt_settings)
 
                     self.homie_devices [device_id] = ic
                     self.device_name_list.append(name)

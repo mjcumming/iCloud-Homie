@@ -6,5 +6,8 @@ icloud:
   account_name: 
     username: 
     password: 
+  account_name:
+    username:
+    password:
 
 update_interval:

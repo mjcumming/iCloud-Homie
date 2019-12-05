@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import pytz 
+import time
 import datetime 
 import traceback
 
@@ -82,10 +83,11 @@ DEVICESTATUSCODES = {
 
 class Device_iCloud_Device(Device_Base):
 
-    def __init__(self, device_id, name, icloud_device=None, homie_settings=None, mqtt_settings=None):
+    def __init__(self, device_id, name, update_interval, icloud_device=None, homie_settings=None, mqtt_settings=None):
 
         super().__init__ (device_id, name, homie_settings, mqtt_settings)
 
+        self.last_refresh_time = 0
         self.icloud_device = icloud_device
 
         node = (Node_Base(self,'status','Status','status'))
@@ -121,13 +123,35 @@ class Device_iCloud_Device(Device_Base):
         self.refresh = Property_Switch (node, id='refresh', name="Refresh",set_value=self.set_refresh)
         node.add_property (self.refresh)
 
+
+        node = (Node_Base(self,'control','Control','control'))
+        self.add_node (node)
+
+        self.enable_location = Property_Switch (node, id='enablelocation', name="Enable Location", value='ON', set_value=self.set_enable_location)
+        node.add_property (self.enable_location)
+
+        self.enable_cache = Property_Switch (node, id='enablelocationcache', name="Enable Location Cache", value='ON', set_value=self.set_location_cache)
+        node.add_property (self.enable_cache)
+
+        self.refresh_timer = Property_Float (node, id='refreshtimer', name="Refresh Timer", value=update_interval, set_value=self.set_refresh_timer)
+        node.add_property (self.refresh_timer)
+
+
         self.start()
 
         self.update()
 
     def update(self):
-        status = self.icloud_device.status (STATUSREQUEST)
-        location = self.icloud_device.location ()
+        if (time.time() - self.last_refresh_time) > self.refresh_timer.value * 60:
+            status = self.icloud_device.status (STATUSREQUEST)
+            if self.enable_location.value == 'ON':
+                location = self.icloud_device.location ()
+                if self.enable_cache.value == 'OFF':
+                    sleep(20)
+                    location = self.icloud_device.location ()
+            self.last_refresh_time = time.time()
+        else:
+            return
         #print (location)
 
         try:
@@ -157,6 +181,12 @@ class Device_iCloud_Device(Device_Base):
             self.location_accuracy.value = 0
             self.location_type.value = "Unknown"
 
+    def set_enable_location(self,value):
+        self.enable_location.value = value
+
+    def set_location_cache(self,value):
+        self.location_cache.value = value
+
     def set_find_my_phone(self,value):
         self.icloud_device.play_sound()
         self.findmyphone.value ='ON'
@@ -167,4 +197,5 @@ class Device_iCloud_Device(Device_Base):
         self.refresh.value ='ON'
         self.refresh.value ='OFF'
 
-
+    def set_refresh_timer(self,value):
+        self.refresh_timer.value = value
