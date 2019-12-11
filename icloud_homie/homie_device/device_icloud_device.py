@@ -142,6 +142,7 @@ class Device_iCloud_Device(Device_Base):
         self.update()
 
     def update(self):
+        location = None
         if (time.time() - self.last_refresh_time) > self.refresh_timer.value * 60:
             status = self.icloud_device.status (STATUSREQUEST)
             if self.enable_location.value == 'ON':
