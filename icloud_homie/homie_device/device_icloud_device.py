@@ -147,7 +147,7 @@ class Device_iCloud_Device(Device_Base):
             if self.enable_location.value == 'ON':
                 location = self.icloud_device.location ()
                 if self.enable_cache.value == 'OFF':
-                    sleep(20)
+                    time.sleep(20)
                     location = self.icloud_device.location ()
             self.last_refresh_time = time.time()
         else:
