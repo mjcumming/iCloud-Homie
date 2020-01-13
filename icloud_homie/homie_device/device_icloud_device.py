@@ -117,13 +117,6 @@ class Device_iCloud_Device(Device_Base):
         self.location_lastupdate = Property_String (node, id='lastupdate', name="Location Last Update")
         node.add_property (self.location_lastupdate)
 
-        self.findmyphone = Property_Switch (node, id='findphone', name="Find My Phone",set_value=self.set_find_my_phone)
-        node.add_property (self.findmyphone)
-
-        self.refresh = Property_Switch (node, id='refresh', name="Refresh",set_value=self.set_refresh)
-        node.add_property (self.refresh)
-
-
         node = (Node_Base(self,'control','Control','control'))
         self.add_node (node)
 
@@ -135,6 +128,12 @@ class Device_iCloud_Device(Device_Base):
 
         self.refresh_timer = Property_Float (node, id='refreshtimer', name="Refresh Timer", value=update_interval, set_value=self.set_refresh_timer)
         node.add_property (self.refresh_timer)
+
+        self.findmyphone = Property_Switch (node, id='findphone', name="Find My Phone",set_value=self.set_find_my_phone)
+        node.add_property (self.findmyphone)
+
+        self.refresh = Property_Switch (node, id='refresh', name="Refresh",set_value=self.set_refresh)
+        node.add_property (self.refresh)
 
 
         self.start()

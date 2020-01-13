@@ -3,6 +3,7 @@ Description=iCloud Homie
 After=multi-user.target
 
 [Service]
+User=pi
 Type=simple
 ExecStart=/usr/bin/python3 /usr/local/bin/icloud_homie_start.py
 Restart=on-abort

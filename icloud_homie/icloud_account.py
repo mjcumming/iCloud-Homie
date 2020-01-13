@@ -2,7 +2,8 @@
 
 import logging
 import traceback
-import os
+
+from pathlib import Path
 
 from pyicloud import PyiCloudService
 from pyicloud.exceptions import (
@@ -43,7 +44,7 @@ class ICloud_Account (object):
 
     def connect_icloud(self):
         try:
-            self.api = PyiCloudService(self.username,self.password,cookie_directory=os.getcwd(),verify=True)
+            self.api = PyiCloudService(self.username,self.password,cookie_directory=str(Path.home()),verify=True)
             self.device_account.connection_status.value ="Connected"
 
         except PyiCloudFailedLoginException as error:
@@ -92,17 +93,16 @@ class ICloud_Account (object):
     def add_devices (self):
         for device_id,device_info in self.api.devices.items():
             try:
-                print (device_id,device_info)
+                #print (device_id,device_info)
                 device = self.api.devices [device_id]
                 status = device.status (["name","rawDeviceModel","deviceStatus"])
-                print(device, status["deviceStatus"])
+                #print(device, status["deviceStatus"])
 
                 name = "".join(c for c in (status["name"]+'-'+status["rawDeviceModel"]).lower() if c in PERMITTED_CHARS)
                 logger.info ('New icloud device {}'.format(name))
 
                 if status["deviceStatus"] in ["200","201"]:
                     logger.info ('Adding icloud device {}'.format(name))
-                    print  ('adding')
 
                     ic = Device_iCloud_Device (device_id=name,name=name,update_interval=self.update_interval,icloud_device=device,mqtt_settings=self.mqtt_settings)
 
@@ -122,10 +122,10 @@ class ICloud_Account (object):
             if self.api.validate_verification_code(self._trusted_device, code):
                 self.connected()
             else:
-                logger.error("Failed to verify verification code: %s", error)
+                logger.error("Failed to verify verification code:{}}".format(error))
 
         except PyiCloudException as error:
-            logger.error("Failed to verify verification code: %s", error)
+            logger.error("Failed to verify verification code: {}".format(error))
 
     def update_devices(self):
         for device_id, device in self.homie_devices.items():
