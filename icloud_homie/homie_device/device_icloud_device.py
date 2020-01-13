@@ -186,7 +186,7 @@ class Device_iCloud_Device(Device_Base):
         self.enable_location.value = value
 
     def set_location_cache(self,value):
-        self.location_cache.value = value
+        self.enable_cache.value = value
 
     def set_find_my_phone(self,value):
         self.icloud_device.play_sound()
