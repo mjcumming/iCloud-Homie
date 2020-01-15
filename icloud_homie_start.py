@@ -9,7 +9,7 @@ try:
     with open("/etc/icloud_homie.yml", 'r') as ymlfile:
         cfg = yaml.full_load(ymlfile)
 except FileNotFoundError:
-    with open('iclound_homie.yml', 'r') as ymlfile:
+    with open('icloud_homie.yml', 'r') as ymlfile:
         cfg = yaml.full_load(ymlfile)
 
 ic = []

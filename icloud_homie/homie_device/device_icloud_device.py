@@ -114,6 +114,9 @@ class Device_iCloud_Device(Device_Base):
         self.location_type = Property_String (node, id='locationtype', name="Location Type")
         node.add_property (self.location_type)
 
+        self.location = Property_String (node, id='location', name="Location")
+        node.add_property (self.location)
+
         self.location_lastupdate = Property_String (node, id='lastupdate', name="Location Last Update")
         node.add_property (self.location_lastupdate)
 
@@ -162,6 +165,7 @@ class Device_iCloud_Device(Device_Base):
                 self.location_lastupdate.value = datetime.datetime.fromtimestamp(float(location["timeStamp"])/1000).strftime("%d/%m/%Y %H:%M:%S")
                 self.latitude.value = float(location["latitude"])
                 self.longitude.value = float(location["longitude"])
+                self.location.value = '{},{}'.format(location["latitude"],location["longitude"])
                 self.location_accuracy.value = float(location["horizontalAccuracy"])
                 self.location_type.value = location ["positionType"]
             else:
