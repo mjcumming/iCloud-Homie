@@ -17,11 +17,19 @@ from .homie_device.device_icloud_account import Device_iCloud_Account
 
 logger = logging.getLogger(__name__)
 
-PERMITTED_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz-" 
+PERMITTED_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz-"
 
-class ICloud_Account (object):
 
-    def __init__(self, name, username, password, update_interval, homie_settings=None, mqtt_settings=None):
+class ICloud_Account(object):
+    def __init__(
+        self,
+        name,
+        username,
+        password,
+        update_interval,
+        homie_settings=None,
+        mqtt_settings=None,
+    ):
 
         self.homie_settings = homie_settings
         self.mqtt_settings = mqtt_settings
@@ -34,8 +42,14 @@ class ICloud_Account (object):
         self._trusted_device = None
         self._trusted_device_name = "None"
 
-        self.device_account = Device_iCloud_Account(device_id=name.lower() + 'icloudaccount', name= name + ' iCloud Account', icloud_account=self, homie_settings=homie_settings, mqtt_settings=mqtt_settings)
-        self.device_account.connection_status.value ="Not Connected"
+        self.device_account = Device_iCloud_Account(
+            device_id=name.lower() + "icloudaccount",
+            name=name + " iCloud Account",
+            icloud_account=self,
+            homie_settings=homie_settings,
+            mqtt_settings=mqtt_settings,
+        )
+        self.device_account.connection_status.value = "Not Connected"
 
         self.device_name_list = []
         self.homie_devices = {}
@@ -44,33 +58,44 @@ class ICloud_Account (object):
 
     def connect_icloud(self):
         try:
-            self.api = PyiCloudService(self.username,self.password,cookie_directory=str(Path.home()),verify=True)
-            self.device_account.connection_status.value ="Connected"
+            self.api = PyiCloudService(
+                self.username,
+                self.password,
+                cookie_directory=str(Path.home()),
+                verify=True,
+            )
+            self.device_account.connection_status.value = "Connected"
 
         except PyiCloudFailedLoginException as error:
             self.api = None
             logger.error("Error logging into iCloud Service: %s", error)
-            self.device_account.connection_status.value ="Login Error {}".format(error)
+            self.device_account.connection_status.value = "Login Error {}".format(error)
             return
 
         if self.api.requires_2fa:
             try:
                 if self._trusted_device is None:
                     self._trusted_device = self.get_trusted_device()
-                    self._trusted_device_name = "device"+"".join(c for c in self._trusted_device.get('phoneNumber') if c in PERMITTED_CHARS)
+                    self._trusted_device_name = "device" + "".join(
+                        c
+                        for c in self._trusted_device.get("phoneNumber")
+                        if c in PERMITTED_CHARS
+                    )
                     self.device_account.update()
 
                     if not self.api.send_verification_code(self._trusted_device):
                         logger.error("Failed to send verification code")
                         self._trusted_device = None
-                        self.device_account.connection_status.value ="Failed sending verification code"
+                        self.device_account.connection_status.value = (
+                            "Failed sending verification code"
+                        )
                         return
 
             except PyiCloudException as error:
-                self.device_account.connection_status.value ="2FA Error"
+                self.device_account.connection_status.value = "2FA Error"
                 logger.error("Error setting up 2FA: %s", error)
                 return
-        
+
         try:
             self.api.authenticate()
             self.connected()
@@ -78,46 +103,54 @@ class ICloud_Account (object):
         except PyiCloudFailedLoginException as msg:
             logger.error("Failed to authenticate {}", msg)
 
-
-    def connected (self):
-        self.device_account.connection_status.value ="Ready"
+    def connected(self):
+        self.device_account.connection_status.value = "Ready"
         self.add_devices()
-    
-    def get_trusted_device (self):
+
+    def get_trusted_device(self):
         devices = self.api.trusted_devices
         for i, device in enumerate(devices):
-            #print ( "deviceName", "SMS to %s" % device.get("phoneNumber"))
+            # print ( "deviceName", "SMS to %s" % device.get("phoneNumber"))
             return device
         return None
 
-    def add_devices (self):
-        for device_id,device_info in self.api.devices.items():
+    def add_devices(self):
+        for device_id, device_info in self.api.devices.items():
             try:
-                #print (device_id,device_info)
-                device = self.api.devices [device_id]
-                status = device.status (["name","rawDeviceModel","deviceStatus"])
-                #print(device, status["deviceStatus"])
+                # print (device_id,device_info)
+                device = self.api.devices[device_id]
+                status = device.status(["name", "rawDeviceModel", "deviceStatus"])
+                # print(device, status["deviceStatus"])
 
-                name = "".join(c for c in (status["name"]+'-'+status["rawDeviceModel"]).lower() if c in PERMITTED_CHARS)
-                logger.info ('New icloud device {}'.format(name))
+                name = "".join(
+                    c
+                    for c in (status["name"] + "-" + status["rawDeviceModel"]).lower()
+                    if c in PERMITTED_CHARS
+                )
+                logger.info("New icloud device {}".format(name))
 
-                if status["deviceStatus"] in ["200","201"]:
-                    logger.info ('Adding icloud device {}'.format(name))
+                if status["deviceStatus"] in ["200", "201"]:
+                    logger.info("Adding icloud device {}".format(name))
 
-                    ic = Device_iCloud_Device (device_id=name,name=name,update_interval=self.update_interval,icloud_device=device,mqtt_settings=self.mqtt_settings)
+                    ic = Device_iCloud_Device(
+                        device_id=name,
+                        name=name,
+                        update_interval=self.update_interval,
+                        icloud_device=device,
+                        mqtt_settings=self.mqtt_settings,
+                    )
 
-                    self.homie_devices [device_id] = ic
+                    self.homie_devices[device_id] = ic
                     self.device_name_list.append(name)
                     self.device_account.update()
                 else:
-                    logger.info ('Skipping icloud device {}'.format(name))
+                    logger.info("Skipping icloud device {}".format(name))
 
             except Exception as e:
                 traceback.print_exc()
-                logger.warning ('Error adding device. Error {}'.format(e))
+                logger.warning("Error adding device. Error {}".format(e))
 
-    
-    def send_verification_code (self,code):
+    def send_verification_code(self, code):
         try:
             if self.api.validate_verification_code(self._trusted_device, code):
                 self.connected()
@@ -133,4 +166,4 @@ class ICloud_Account (object):
                 device.update()
             except Exception as e:
                 traceback.print_exc()
-                logger.warning ('Error adding device. Error {}'.format(e))
+                logger.warning("Error adding device. Error {}".format(e))

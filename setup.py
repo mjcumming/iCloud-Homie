@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='iCloud Homie 4',
-    version='0.0.7',
+    version='0.0.8',
     description='Homie 4 for iCloud Devices',
     author='Michael Cumming',
     author_email='mike@4831.com',
@@ -21,7 +21,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],      
     install_requires=[
-        'Homie4',
+        'Homie4>=0.2.7',
         'pyicloud',
         'pyyaml',
     ],
