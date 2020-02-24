@@ -4,6 +4,10 @@ import pytz
 import time
 import datetime
 import traceback
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
 
 from homie.device_base import Device_Base
 
@@ -142,6 +146,11 @@ class Device_iCloud_Device(Device_Base):
         )
         node.add_property(self.location_lastupdate)
 
+        self.location_combined = Property_String(
+            node, id="locationcombined", name="All Location Data"
+        )
+        node.add_property(self.location_combined)
+
         node = Node_Base(self, "control", "Control", "control")
         self.add_node(node)
 
@@ -187,18 +196,23 @@ class Device_iCloud_Device(Device_Base):
         self.update()
 
     def update(self):
-        location = None
-        if (time.time() - self.last_refresh_time) > self.refresh_timer.value * 60:
-            status = self.icloud_device.status(STATUSREQUEST)
-            if self.enable_location.value == "ON":
-                location = self.icloud_device.location()
-                if self.enable_cache.value == "OFF":
-                    time.sleep(20)
+        try:
+            location = None
+            if (time.time() - self.last_refresh_time) > self.refresh_timer.value * 60:
+                status = self.icloud_device.status(STATUSREQUEST)
+                if self.enable_location.value == "ON":
                     location = self.icloud_device.location()
-            self.last_refresh_time = time.time()
-        else:
+                    if self.enable_cache.value == "OFF":
+                        time.sleep(20)
+                        location = self.icloud_device.location()
+                self.last_refresh_time = time.time()
+            else:
+                return
+            # print (location)
+        except Exception as e:
+            traceback.print_exc()
+            logger.warning("Error updating device {}. Error {}".format(self.device_id,e))
             return
-        # print (location)
 
         try:
             self.device_status.value = DEVICESTATUSCODES[status["deviceStatus"]]
@@ -215,6 +229,16 @@ class Device_iCloud_Device(Device_Base):
                 )
                 self.location_accuracy.value = float(location["horizontalAccuracy"])
                 self.location_type.value = location["positionType"]
+
+                location = {
+                    'latitude':float(location["latitude"]),
+                    'longitude':float(location["longitude"]),
+                    'accuracy':float(location["horizontalAccuracy"]),
+                    'type': location["positionType"],
+                }
+
+                self.location_combined.value = str(location)
+
             else:
                 self.location_lastupdate.value = "Unknown"
                 self.latitude.value = 0

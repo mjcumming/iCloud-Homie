@@ -72,7 +72,7 @@ class ICloud_Account(object):
             self.device_account.connection_status.value = "Login Error {}".format(error)
             return
 
-        if self.api.requires_2fa:
+        if self.api.requires_2sa:
             try:
                 if self._trusted_device is None:
                     self._trusted_device = self.get_trusted_device()
@@ -161,9 +161,10 @@ class ICloud_Account(object):
             logger.error("Failed to verify verification code: {}".format(error))
 
     def update_devices(self):
+        self.api.authenticate()
         for device_id, device in self.homie_devices.items():
             try:
                 device.update()
             except Exception as e:
                 traceback.print_exc()
-                logger.warning("Error adding device. Error {}".format(e))
+                logger.warning("Error updating device. Error {}".format(e))

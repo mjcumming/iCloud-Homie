@@ -20,7 +20,7 @@ for name,account_info in accounts.items():
 
 try:
     while True:
-        time.sleep(1)
+        time.sleep(int(cfg ['update_interval'])*60)
         for account in ic:
             account.update_devices()
 
